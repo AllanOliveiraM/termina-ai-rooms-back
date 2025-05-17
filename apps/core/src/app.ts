@@ -1,12 +1,16 @@
+import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import { MicroserviceOptions } from '@nestjs/microservices'
+
+import { GlobalEnvVariables } from '@app/common/constants/environment'
 
 import { CoreModule } from './core.module'
 
 export async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(CoreModule)
+  const app = await NestFactory.create(CoreModule)
 
   app.enableShutdownHooks()
 
-  await app.listen()
+  const contig = app.get(ConfigService)
+
+  await app.listen(contig.getOrThrow(GlobalEnvVariables.PORT))
 }
