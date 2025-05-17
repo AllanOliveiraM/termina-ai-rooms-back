@@ -11,6 +11,8 @@ export class EnvValidationManager {
       validationSchema: joi.object({
         [GlobalEnvVariables.PORT]: joi.number().required(),
 
+        [GlobalEnvVariables.JWT_SECRET]: joi.string().required(),
+
         [GlobalEnvVariables.NODE_ENV]: joi.string().required(),
       }),
 
