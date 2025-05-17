@@ -15,7 +15,7 @@ import { SessionsService } from './sessions.service'
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}
 
-  @Post('/create-session/:token')
+  @Post('/create-session')
   async createSession(@Body() body: CreateSessionDto) {
     return this.sessionsService.createSession(body)
   }

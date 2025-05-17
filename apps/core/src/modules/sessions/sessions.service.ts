@@ -15,7 +15,7 @@ export class SessionsService {
   ) {}
 
   async createSession(data: CreateSessionDto) {
-    const token = Jwt.sign(data, this.configService.get('JWT_SECRET'))
+    const token = Jwt.sign(JSON.stringify(data), this.configService.get('JWT_SECRET'))
 
     return { token }
   }
