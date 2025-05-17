@@ -4,9 +4,10 @@ import { LoggerMiddleware } from '@app/common/middlewares/logger.middleware'
 
 import { EnvValidationManager } from './modules/env-manager/env-manager.module'
 import { RoomsModule } from './modules/rooms/rooms.module'
+import { SessionModule } from './modules/sessions/sessions.module'
 
 @Module({
-  imports: [EnvValidationManager.forRoot(), RoomsModule],
+  imports: [EnvValidationManager.forRoot(), RoomsModule, SessionModule],
   controllers: [],
 })
 export class CoreModule implements NestModule {
