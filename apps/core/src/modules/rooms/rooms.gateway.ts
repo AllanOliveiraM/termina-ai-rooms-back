@@ -3,7 +3,7 @@ import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
 
 import { Socket } from 'socket.io'
 
-import { RoomsStore } from '@app/common/store/rooms.store'
+import { StoreService } from '@app/common/store/rooms.store'
 
 import { RoomsService } from './rooms.service'
 
@@ -30,7 +30,7 @@ interface FindRoomMessageReceiveInterface {
 export class RoomsGateway {
   constructor(
     private readonly roomsService: RoomsService,
-    private readonly roomsStore: RoomsStore
+    private readonly storeService: StoreService
   ) {}
 
   private readonly logger = new Logger('rooms.gateway')
@@ -57,7 +57,7 @@ export class RoomsGateway {
 
     const roomFromGateway = await this.roomsService.findRoomByToken(message.token)
 
-    let roomFromStore = this.roomsStore.get(roomFromGateway.terminationId)
+    let roomFromStore = this.storeService.get(roomFromGateway.terminationId)
 
     if (!roomFromStore) {
       this.logger.log('Creating new room', roomFromGateway)
@@ -68,7 +68,7 @@ export class RoomsGateway {
         soundtrack: roomFromGateway.soundtrack,
       }
 
-      roomFromStore = this.roomsStore.set(room.terminationId, room)
+      roomFromStore = this.storeService.set(room.terminationId, room)
       this.logger.log('New room created', roomFromGateway)
     }
 

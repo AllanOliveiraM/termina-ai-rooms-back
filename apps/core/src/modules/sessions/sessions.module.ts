@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common'
 
-import { MemoryStore } from '@app/common/store/memory.store'
+import { StoreModule } from '@app/common/store/rooms.module'
 
-import { RoomsModule } from '../rooms/rooms.module'
 import { SessionsController } from './sessions.controller'
 import { SessionsService } from './sessions.service'
 
 @Module({
-  imports: [RoomsModule],
+  imports: [StoreModule],
   controllers: [SessionsController],
-  providers: [SessionsService, MemoryStore],
+  providers: [SessionsService],
 })
 export class SessionModule {}

@@ -10,4 +10,4 @@ export interface RoomsInterface {
 }
 
 @Injectable()
-export class RoomsStore extends MemoryStore<RoomsInterface> {}
+export class StoreService extends MemoryStore<RoomsInterface> {}
