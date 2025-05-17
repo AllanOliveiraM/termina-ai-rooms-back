@@ -9,6 +9,7 @@ export async function bootstrap() {
   const app = await NestFactory.create(CoreModule)
 
   app.enableShutdownHooks()
+  app.enableCors()
 
   const contig = app.get(ConfigService)
 
