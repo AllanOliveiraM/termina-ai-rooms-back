@@ -6,10 +6,14 @@ import { RoomsService } from './rooms.service'
 
 @WebSocketGateway()
 export class RoomsGateway {
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(private readonly roomsService: RoomsService) {
+    console.log('entrou')
+  }
 
   @SubscribeMessage('teste')
   handleEvent(client: Socket, data: string): string {
+    console.log('oi', data)
+    client.emit('teste2', 'oi')
     return 'oi'
   }
 }
