@@ -3,7 +3,7 @@ import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
 
 import { Socket } from 'socket.io'
 
-import { StoreService } from '@app/common/store/rooms.store'
+import { StoreService } from '@app/common/store/store.service'
 
 import { RoomsService } from './rooms.service'
 
@@ -66,6 +66,7 @@ export class RoomsGateway {
         chosenMessage: roomFromGateway.chosenMessage,
         scenario: roomFromGateway.scenario,
         soundtrack: roomFromGateway.soundtrack,
+        type: 'auditorium' as const,
       }
 
       roomFromStore = this.storeService.set(room.terminationId, room)

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 
-import { StoreModule } from '@app/common/store/rooms.module'
+import { StoreModule } from '@app/common/store/store.module'
 
 import { SessionsController } from './sessions.controller'
 import { SessionsService } from './sessions.service'

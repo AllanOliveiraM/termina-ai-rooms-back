@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { RoomsInterface } from '@app/common/store/rooms.store'
+import { RoomsInterface } from '@app/common/store/store.service'
 
 @Injectable()
 export class RoomsService {
@@ -12,6 +12,7 @@ export class RoomsService {
       chosenMessage: 'É melhor seguirmos caminhos diferentes...',
       scenario: 'chuva_na_janela',
       soundtrack: 'sad_piano.mp3',
+      type: 'auditorium',
     }
   }
 }

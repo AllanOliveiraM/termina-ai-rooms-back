@@ -1,5 +1,9 @@
 export class MemoryStore<T> {
-  private readonly items: Map<string, T> = new Map<string, T>()
+  constructor() {
+    this.items = new Map<string, T>()
+  }
+
+  private readonly items: Map<string, T>
 
   get(key: string): T | undefined {
     return this.items.get(key)
