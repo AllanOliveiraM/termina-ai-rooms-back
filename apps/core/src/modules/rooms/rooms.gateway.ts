@@ -37,6 +37,10 @@ export class RoomsGateway {
     private readonly roomsSyncService: RoomsSyncService
   ) {}
 
+  private kickUser(socketChannelId: string) {
+    this.server.to(socketChannelId).emit('kicked')
+  }
+
   @SubscribeMessage('join')
   async join(client: Socket, message: WithAuthEventDto): Promise<void> {
     const tokenPayload = this.authService.validateAndParseToken({
@@ -70,10 +74,16 @@ export class RoomsGateway {
 
     const now = _dayjs()
 
+    const socketChannelId = client.id
+
+    if (socketChannelId !== userFromStore.socketChannelId) {
+      this.kickUser(userFromStore.socketChannelId)
+    }
+
     this.storeService.setUserInRoom(room.roomInfo.terminationId, {
       ...userFromStore,
 
-      socketChannelId: client.id,
+      socketChannelId,
 
       meta: {
         ...userFromStore.meta,
@@ -120,6 +130,10 @@ export class RoomsGateway {
 
     const socketChannelId = client.id
 
+    if (socketChannelId !== userFromStore.socketChannelId) {
+      this.kickUser(userFromStore.socketChannelId)
+    }
+
     this.storeService.setUserInRoom(room.roomInfo.terminationId, {
       ...userFromStore,
 
@@ -150,10 +164,6 @@ export class RoomsGateway {
 
   @Interval(ms('1h'))
   async recycleRooms() {
-    const kickUser = (socketChannelId: string) => {
-      this.server.to(socketChannelId).emit('kicked')
-    }
-
     const now = _dayjs()
 
     const currentStore = this.storeService.getAll()
@@ -162,7 +172,7 @@ export class RoomsGateway {
       if (room.meta.createdAt.isBefore(now.subtract(roomLifetime_days, 'days'))) {
         room.roomUsers.forEach(user => {
           if (user.socketChannelId) {
-            kickUser(user.socketChannelId)
+            this.kickUser(user.socketChannelId)
           }
         })
 
