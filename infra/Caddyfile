@@ -1,0 +1,7 @@
+http://terminaai.granosafe.dev {
+    redir https://terminaai.granosafe.dev{uri}
+}
+
+terminaai.granosafe.dev {
+    reverse_proxy localhost:3100
+}
