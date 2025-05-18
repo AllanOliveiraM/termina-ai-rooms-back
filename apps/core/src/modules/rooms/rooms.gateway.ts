@@ -58,7 +58,7 @@ export class RoomsGateway {
     }
 
     const userFromStore = this.storeService.getUserFromRoomBySessionId(
-      tokenPayload.terminationId,
+      room.roomInfo.terminationId,
       tokenPayload.sessionId
     )
 
@@ -70,8 +70,11 @@ export class RoomsGateway {
 
     const now = _dayjs()
 
-    this.storeService.setUserInRoom(tokenPayload.terminationId, {
+    this.storeService.setUserInRoom(room.roomInfo.terminationId, {
       ...userFromStore,
+
+      socketChannelId: client.id,
+
       meta: {
         ...userFromStore.meta,
 
@@ -79,7 +82,7 @@ export class RoomsGateway {
       },
     })
 
-    await this.roomsSyncService.syncRoom(tokenPayload.terminationId, this.server)
+    await this.roomsSyncService.syncRoom(room.roomInfo.terminationId, this.server)
   }
 
   @SubscribeMessage('iamhere')
@@ -103,7 +106,7 @@ export class RoomsGateway {
     }
 
     const userFromStore = this.storeService.getUserFromRoomBySessionId(
-      tokenPayload.terminationId,
+      room.roomInfo.terminationId,
       tokenPayload.sessionId
     )
 
@@ -115,14 +118,25 @@ export class RoomsGateway {
 
     const now = _dayjs()
 
-    this.storeService.setUserInRoom(tokenPayload.terminationId, {
+    const socketChannelId = client.id
+
+    this.storeService.setUserInRoom(room.roomInfo.terminationId, {
       ...userFromStore,
+
+      socketChannelId,
+
       meta: {
         ...userFromStore.meta,
 
         lastSeenAt: now,
       },
     })
+
+    await this.roomsSyncService.syncForUser(
+      room.roomInfo.terminationId,
+      socketChannelId,
+      this.server
+    )
   }
 
   @Interval(ms('7s'))
@@ -147,7 +161,9 @@ export class RoomsGateway {
     for (const room of currentStore) {
       if (room.meta.createdAt.isBefore(now.subtract(roomLifetime_days, 'days'))) {
         room.roomUsers.forEach(user => {
-          kickUser(user.socketChannelId)
+          if (user.socketChannelId) {
+            kickUser(user.socketChannelId)
+          }
         })
 
         this.storeService.delete(room.roomInfo.terminationId)

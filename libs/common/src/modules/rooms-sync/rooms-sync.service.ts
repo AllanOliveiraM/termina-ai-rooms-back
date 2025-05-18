@@ -20,8 +20,11 @@ export class RoomsSyncService {
 
     const now = _dayjs()
 
-    const activeUsers = room.roomUsers.filter(user =>
-      user.meta.lastSeenAt.isBefore(now.subtract(userActiveTimeout_minutes, 'minutes'))
+    const activeUsers = room.roomUsers.filter(
+      user =>
+        user.meta.lastSeenAt.isBefore(
+          now.subtract(userActiveTimeout_minutes, 'minutes')
+        ) && user.socketChannelId
     )
 
     for (const user of activeUsers) {
@@ -29,5 +32,21 @@ export class RoomsSyncService {
         room,
       })
     }
+  }
+
+  async syncForUser(
+    terminationId: string,
+    socketChannelId: string,
+    server: Server
+  ): Promise<void> {
+    const room = this.storeService.getRoomById(terminationId)
+
+    if (!room) {
+      return
+    }
+
+    server.to(socketChannelId).emit('sync', {
+      room,
+    })
   }
 }
