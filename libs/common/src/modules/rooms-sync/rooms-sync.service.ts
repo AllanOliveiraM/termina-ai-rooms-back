@@ -28,9 +28,7 @@ export class RoomsSyncService {
     )
 
     for (const user of activeUsers) {
-      server.to(user.socketChannelId).emit('sync', {
-        room,
-      })
+      server.to(user.socketChannelId).emit('sync', room)
     }
   }
 
@@ -45,8 +43,6 @@ export class RoomsSyncService {
       return
     }
 
-    server.to(socketChannelId).emit('sync', {
-      room,
-    })
+    server.to(socketChannelId).emit('sync', room)
   }
 }
