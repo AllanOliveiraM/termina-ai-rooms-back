@@ -50,3 +50,5 @@ lerna-debug.log*
 
 *.pem
 *.p12
+
+memory-store.json

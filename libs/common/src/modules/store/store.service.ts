@@ -18,10 +18,10 @@ export class StoreService extends MemoryStore<Room> {
     return this.get(terminationId) || null
   }
 
-  getUserFromRoomBySessionId(terminationId: string, sessionId: string): User | undefined {
+  getUserFromRoomBySessionId(terminationId: string, sessionId: string): User | null {
     const room = this.getRoomById(terminationId)
 
-    return room.roomUsers?.find(user => user.sessionId === sessionId)
+    return room.roomUsers?.find(user => user.sessionId === sessionId) || null
   }
 
   setUserInRoom(
@@ -56,35 +56,6 @@ export class StoreService extends MemoryStore<Room> {
 
     return {
       upserted: true,
-    }
-  }
-
-  removeUserFromRoom(
-    terminationId: string,
-    sessionId: string
-  ): {
-    removed: boolean
-  } {
-    const room = this.get(terminationId)
-
-    if (!room) {
-      return {
-        removed: false,
-      }
-    }
-
-    const userExists = this.getUserFromRoomBySessionId(terminationId, sessionId)
-
-    if (!userExists) {
-      return {
-        removed: false,
-      }
-    }
-
-    room.roomUsers = room.roomUsers.filter(user => user.sessionId !== sessionId)
-
-    return {
-      removed: true,
     }
   }
 }
