@@ -68,10 +68,7 @@ export class SessionsService {
 
       const token = Jwt.sign(
         JSON.stringify(jwtPayload),
-        this.configService.getOrThrow('JWT_SECRET'),
-        {
-          expiresIn: '1 day',
-        }
+        this.configService.getOrThrow('JWT_SECRET')
       )
 
       const chairPosition = this.getRandomAvailableChair(
@@ -92,7 +89,8 @@ export class SessionsService {
       })
 
       return { token }
-    } catch {
+    } catch (err) {
+      console.log(err)
       throw new BadRequestException(ErrorCodes.ROOM_TOKEN_NOT_VALID)
     }
   }
