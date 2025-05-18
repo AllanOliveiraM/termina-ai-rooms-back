@@ -8,7 +8,7 @@ This project acts as an intermediary that connects your frontend interface with 
 
 ## Features
 
-- Acts as a proxy between the frontend and backend.
+- Acts as a proxy between the frontend and chatbot (LLM) backend.
 - Maintains user connectivity in virtual rooms.
 - Facilitates secure and stable communication.
 - Enforces code quality standards using ESLint, Prettier, and TypeScript type checks.

@@ -1,7 +1,7 @@
 {
   "name": "termina-ai-rooms-back",
   "version": "0.0.1",
-  "description": "",
+  "description": "TerminaAi room sync backend.",
   "private": true,
   "license": "MIT",
   "scripts": {
