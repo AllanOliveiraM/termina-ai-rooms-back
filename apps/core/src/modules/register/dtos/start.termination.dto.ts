@@ -3,9 +3,17 @@ import { IsNotEmpty, IsString } from 'class-validator'
 export class StartTerminationDto {
   @IsString()
   @IsNotEmpty()
-  name: string
+  nameTerminator: string
 
   @IsString()
   @IsNotEmpty()
-  phone: string
+  nameTerminated: string
+
+  @IsString()
+  @IsNotEmpty()
+  phoneTerminator: string
+
+  @IsString()
+  @IsNotEmpty()
+  phoneTerminated: string
 }
