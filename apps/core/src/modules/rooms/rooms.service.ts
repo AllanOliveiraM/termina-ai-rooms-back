@@ -1,18 +1,34 @@
-import { Injectable } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 
-import { RoomsInterface } from '@app/common/store/store.service'
+import { catchError, firstValueFrom } from 'rxjs'
+
+import { RoomInterface } from '@app/common/store/store.service'
 
 @Injectable()
 export class RoomsService {
-  async findRoomByToken(token: string): Promise<RoomsInterface> {
-    // Implementar a validação do token
-    // Retornar true se o token for válido, caso contrário, false
-    return {
-      terminationId: 'abc123',
-      chosenMessage: 'É melhor seguirmos caminhos diferentes...',
-      scenario: 'chuva_na_janela',
-      soundtrack: 'sad_piano.mp3',
-      type: 'auditorium',
-    }
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
+  ) {}
+  getApiUrl(): string {
+    return this.configService.get<string>('TERMINAI_SERVICE_URL')
+  }
+
+  async findRoomByToken(token: string): Promise<RoomInterface> {
+    const apiUrl = this.getApiUrl()
+
+    const roomObservable = this.httpService.get(`${apiUrl}/api/token/${token}`).pipe(
+      catchError(error => {
+        throw new HttpException(
+          error.response?.data ?? 'Error fetching room',
+          error.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        )
+      })
+    )
+    const roomResponse = await firstValueFrom(roomObservable)
+
+    return roomResponse.data
   }
 }

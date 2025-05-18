@@ -40,6 +40,7 @@ export class RoomsGateway {
     client: Socket,
     message: FindRoomMessageReceiveInterface
   ): Promise<void> {
+    /*
     this.logger.log('Starting to find room', message)
     if (!message?.token) {
       this.logger.log('Invalid token', message)
@@ -57,7 +58,7 @@ export class RoomsGateway {
 
     const roomFromGateway = await this.roomsService.findRoomByToken(message.token)
 
-    let roomFromStore = this.storeService.get(roomFromGateway.terminationId)
+    const roomFromStore = this.storeService.get(roomFromGateway.terminationId)
 
     if (!roomFromStore) {
       this.logger.log('Creating new room', roomFromGateway)
@@ -73,18 +74,19 @@ export class RoomsGateway {
       this.logger.log('New room created', roomFromGateway)
     }
 
-    // let sessionFromStore = this.sessionStore.get(message.sessionId)
+    let sessionFromStore = this.sessionStore.get(message.sessionId)
 
-    // if (!sessionFromStore) {
-    //   const user = {
-    //     sessionId: message.sessionId,
-    //     sessionName: message.sessionName,
-    //   }
-    //   this.logger.log('Creating new user session', user)
+    if (!sessionFromStore) {
+      const user = {
+        sessionId: message.sessionId,
+        sessionName: message.sessionName,
+      }
+      this.logger.log('Creating new user session', user)
 
-    //   sessionFromStore = this.sessionStore.set(user.sessionId, user)
-    //   this.logger.log('New room created', roomFromGateway)
-    // }
+      sessionFromStore = this.sessionStore.set(user.sessionId, user)
+      this.logger.log('New room created', roomFromGateway)
+    }
+    */
 
     // session
 
