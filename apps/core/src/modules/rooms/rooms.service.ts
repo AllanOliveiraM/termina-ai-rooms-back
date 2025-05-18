@@ -14,7 +14,7 @@ export class RoomsService {
     private readonly configService: ConfigService,
     private readonly storeService: StoreService
   ) {}
-  getApiUrl(): string {
+  private getApiUrl(): string {
     return this.configService.get<string>('TERMINAI_SERVICE_URL')
   }
 

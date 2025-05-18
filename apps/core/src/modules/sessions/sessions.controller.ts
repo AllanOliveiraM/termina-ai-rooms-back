@@ -19,20 +19,4 @@ export class SessionsController {
   async createSession(@Body() body: CreateSessionDto) {
     return this.sessionsService.createSession(body)
   }
-
-  // async getSessions() {
-  //   return this.memoryStore.getAll()
-  // }
-
-  // async getSession(sessionId: string) {
-  //   return this.memoryStore.get(sessionId)
-  // }
-
-  // async createSession(sessionId: string) {
-  //   return this.memoryStore.set(sessionId, { sessionId })
-  // }
-
-  // async deleteSession(sessionId: string) {
-  //   return this.memoryStore.delete(sessionId)
-  // }
 }
