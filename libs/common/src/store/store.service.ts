@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { MemoryStore } from './memory.store'
 
 export interface UserInterface {
-  channelId: string
+  channelId: string[]
   sessionId: string
   nickname: string
   position?: number
@@ -28,15 +28,15 @@ export class StoreService extends MemoryStore<RoomInterface> {
 
   getRoomById(terminationId: string): RoomInterface | undefined {
     return this.get(terminationId)
+  }
 
-    // if (!room) {
-    //   throw new NotFoundException({
-    //     message: 'Room not found',
-    //     statusCode: HttpStatus.NOT_FOUND,
-    //   })
-    // }
+  getRoomByClientId(clientId: string): RoomInterface | undefined {
+    const rooms = this.getAll()
+    const room = Object.values(rooms).find(r =>
+      r.users?.some(user => user.channelId.includes(clientId))
+    )
 
-    // return room
+    return room
   }
 
   createUserInRoom(terminationId: string, user: UserInterface): void {
@@ -46,12 +46,47 @@ export class StoreService extends MemoryStore<RoomInterface> {
       room.users = []
     }
 
-    const userExists = this.getUserById(terminationId, user.sessionId)
+    const userExists = this.getUserBySessionId(terminationId, user.sessionId)
 
     if (!userExists) {
       room.users.push(user)
 
       this.set(terminationId, room)
+    }
+  }
+
+  removeUserFromRoom(terminationId: string, sessionId: string): void {
+    const room = this.get(terminationId)
+
+    if (!room.users) {
+      return
+    }
+
+    const userExists = this.getUserBySessionId(terminationId, sessionId)
+
+    if (userExists) {
+      room.users = room.users.filter(user => user.sessionId !== sessionId)
+
+      this.set(terminationId, room)
+    }
+  }
+
+  removeClientIdFromUser(
+    terminationId: string,
+    sessionId: string,
+    clientId: string
+  ): void {
+    const room = this.get(terminationId)
+
+    if (!room.users) {
+      return
+    }
+
+    const userExists = this.getUserBySessionId(terminationId, sessionId)
+
+    if (userExists) {
+      userExists.channelId = userExists.channelId.filter(id => id !== clientId)
+      this.updateUserInRoom(terminationId, userExists)
     }
   }
 
@@ -62,7 +97,7 @@ export class StoreService extends MemoryStore<RoomInterface> {
       room.users = []
     }
 
-    const userExists = this.getUserById(terminationId, user.sessionId)
+    const userExists = this.getUserBySessionId(terminationId, user.sessionId)
 
     if (userExists) {
       room.users = room.users.map(existingUser => {
@@ -76,7 +111,10 @@ export class StoreService extends MemoryStore<RoomInterface> {
     }
   }
 
-  getUserById(terminationId: string, sessionId: string): UserInterface | undefined {
+  getUserBySessionId(
+    terminationId: string,
+    sessionId: string
+  ): UserInterface | undefined {
     const room = this.getRoomById(terminationId)
     return room.users?.find(user => user.sessionId === sessionId)
   }

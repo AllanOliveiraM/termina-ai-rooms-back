@@ -38,7 +38,9 @@ export class RoomsService {
     const room = this.storeService.getRoomById(terminationId)
 
     for (const user of room.users) {
-      server.to(user.channelId).emit('sync', { status: true, data: { room } })
+      for (const channelId of user.channelId) {
+        server.to(channelId).emit('sync', { status: true, data: { room } })
+      }
     }
   }
 }

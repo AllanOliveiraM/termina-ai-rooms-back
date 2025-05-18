@@ -45,11 +45,6 @@ export class SessionsService {
 
     const token = Jwt.sign(JSON.stringify(jwtData), this.configService.get('JWT_SECRET'))
 
-    console.log('Rooms in memory', this.storeService.getAll())
-    // TODO?:
-    // Criar um service para validar o JWT e será implementado no (auth.service.ts)
-    // Não será utilizado aqui, mas sim nos eventos websocket
-
     return { token }
   }
 }
