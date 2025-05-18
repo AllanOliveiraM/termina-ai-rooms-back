@@ -53,6 +53,18 @@ $ yarn prepare
 $ yarn dev
 ```
 
+#### Create a production build.
+
+```bash
+$ yarn nest build core
+```
+
+then, you can run with:
+
+```bash
+$ node ./dist/apps/core/main.js
+```
+
 #### Runs TypeScript type checks.
 
 ```bash
