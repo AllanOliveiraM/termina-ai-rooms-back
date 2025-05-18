@@ -1,26 +1,27 @@
 import { Logger } from '@nestjs/common'
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 
-import { Socket } from 'socket.io'
+import { Socket, Server } from 'socket.io'
 
 import { StoreService } from '@app/common/store/store.service'
 
+import { AuthService } from '../auth/auth.service'
 import { RoomsService } from './rooms.service'
 
-const ErrorEnum = {
-  INVALID_TOKEN: 'INVALID_TOKEN',
-}
+// const ErrorEnum = {
+//   INVALID_TOKEN: 'INVALID_TOKEN',
+// }
 
-interface MessageResponseInterface {
-  status: boolean
-  message: object
-}
+// interface MessageResponseInterface {
+//   status: boolean
+//   message: object
+// }
 
-interface FindRoomMessageReceiveInterface {
-  token: string
-  sessionId: string
-  sessionName: string
-}
+// interface FindRoomMessageReceiveInterface {
+//   token: string
+//   sessionId: string
+//   sessionName: string
+// }
 
 @WebSocketGateway({
   cors: {
@@ -28,18 +29,68 @@ interface FindRoomMessageReceiveInterface {
   },
 })
 export class RoomsGateway {
+  @WebSocketServer() server: Server
   constructor(
     private readonly roomsService: RoomsService,
-    private readonly storeService: StoreService
+    private readonly storeService: StoreService,
+    private readonly authService: AuthService
   ) {}
 
   private readonly logger = new Logger('rooms.gateway')
 
-  @SubscribeMessage('findRoom')
-  async handleEvent(
-    client: Socket,
-    message: FindRoomMessageReceiveInterface
-  ): Promise<void> {
+  @SubscribeMessage('join')
+  async handleEvent(client: Socket): Promise<void> {
+    console.log('Rooms in memory (gateway)', this.storeService.getAll())
+
+    const authHeader = client.handshake.headers.authorization
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // TODO: Criar tratativa para o erro
+      // client.emit('findRoomResponse', {
+      //   status: false,
+      //   message: { error: 'Authorization header is missing or malformatted.' },
+      // });
+      // return;
+    }
+
+    const token = authHeader.split(' ')[1] // extrai o token removendo o "Bearer"
+    const decodedToken = this.authService.validateToken(token)
+
+    const roomFromStore = this.storeService.getRoomById(decodedToken.terminationId)
+    if (!roomFromStore) {
+      client.emit('sync', { status: false, message: 'Room not found' })
+      return
+    }
+
+    const userFromStore = this.storeService.getUserById(
+      decodedToken.terminationId,
+      decodedToken.sessionId
+    )
+
+    const userRoom = {
+      channelId: client.id,
+      sessionId: decodedToken.sessionId,
+      nickname: decodedToken.nickname,
+      position: 0,
+    }
+
+    if (!userFromStore) {
+      this.storeService.createUserInRoom(decodedToken.terminationId, userRoom)
+    } else {
+      this.storeService.updateUserInRoom(decodedToken.terminationId, userRoom)
+    }
+
+    // const room = this.storeService.getRoomById(decodedToken.terminationId)
+
+    console.log('room', roomFromStore)
+
+    // for (const user of room.users) {
+    //   this.server.to(user.channelId).emit('sync', room)
+    // }
+
+    await this.roomsService.syncRooms(decodedToken.terminationId, this.server)
+
+    // console.log('Decoded token:', decodedToken)
     /*
     this.logger.log('Starting to find room', message)
     if (!message?.token) {
@@ -88,6 +139,8 @@ export class RoomsGateway {
     }
     */
 
+    // client.
+
     // session
 
     // Salvar na store
@@ -98,6 +151,8 @@ export class RoomsGateway {
 
     // toda vez que entra um novo usuário, salvamos ele na store;
 
-    client.emit('teste2', 'oi')
+    // this.server.to(client.id).emit('sync', decodedToken)
+
+    // client.emit('sync', { event: 'sync' })
   }
 }

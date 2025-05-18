@@ -21,7 +21,7 @@ export class SessionsService {
     const sessionId = randomUUID()
 
     const roomFromGateway = await this.roomsService.findRoomByToken(data.token)
-    const roomFromStore = this.storeService.get(roomFromGateway.terminationId)
+    const roomFromStore = this.storeService.getRoomById(roomFromGateway.terminationId)
 
     if (!roomFromStore) {
       const room = {
@@ -45,6 +45,7 @@ export class SessionsService {
 
     const token = Jwt.sign(JSON.stringify(jwtData), this.configService.get('JWT_SECRET'))
 
+    console.log('Rooms in memory', this.storeService.getAll())
     // TODO?:
     // Criar um service para validar o JWT e será implementado no (auth.service.ts)
     // Não será utilizado aqui, mas sim nos eventos websocket

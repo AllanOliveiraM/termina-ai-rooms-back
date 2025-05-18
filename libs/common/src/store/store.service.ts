@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 
 import { MemoryStore } from './memory.store'
 
@@ -6,7 +6,7 @@ export interface UserInterface {
   channelId: string
   sessionId: string
   nickname: string
-  position: number
+  position?: number
 }
 export interface RoomInterface {
   terminationId: string
@@ -27,15 +27,57 @@ export class StoreService extends MemoryStore<RoomInterface> {
   }
 
   getRoomById(terminationId: string): RoomInterface | undefined {
+    return this.get(terminationId)
+
+    // if (!room) {
+    //   throw new NotFoundException({
+    //     message: 'Room not found',
+    //     statusCode: HttpStatus.NOT_FOUND,
+    //   })
+    // }
+
+    // return room
+  }
+
+  createUserInRoom(terminationId: string, user: UserInterface): void {
     const room = this.get(terminationId)
 
-    if (!room) {
-      throw new NotFoundException({
-        message: 'Room not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      })
+    if (!room.users) {
+      room.users = []
     }
 
-    return room
+    const userExists = this.getUserById(terminationId, user.sessionId)
+
+    if (!userExists) {
+      room.users.push(user)
+
+      this.set(terminationId, room)
+    }
+  }
+
+  updateUserInRoom(terminationId: string, user: UserInterface): void {
+    const room = this.get(terminationId)
+
+    if (!room.users) {
+      room.users = []
+    }
+
+    const userExists = this.getUserById(terminationId, user.sessionId)
+
+    if (userExists) {
+      room.users = room.users.map(existingUser => {
+        if (existingUser.sessionId === user.sessionId) {
+          return { ...existingUser, ...user }
+        }
+        return existingUser
+      })
+
+      this.set(terminationId, room)
+    }
+  }
+
+  getUserById(terminationId: string, sessionId: string): UserInterface | undefined {
+    const room = this.getRoomById(terminationId)
+    return room.users?.find(user => user.sessionId === sessionId)
   }
 }
