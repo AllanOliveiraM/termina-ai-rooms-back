@@ -86,6 +86,7 @@ export class SessionsService {
           createdAt: now,
           lastSeenAt: now,
         },
+        type: roomFromChatbotServer.currentUserInfo.type as any,
       })
 
       return { token }

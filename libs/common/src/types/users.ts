@@ -7,6 +7,7 @@ export type User = {
   sessionId: string
   nickname: string
   chairPosition: UserChairPositions
+  type: CurrentUserInfo
 
   meta: {
     createdAt: Dayjs
