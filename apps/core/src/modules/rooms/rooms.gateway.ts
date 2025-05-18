@@ -1,94 +1,159 @@
-import {
-  OnGatewayDisconnect,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets'
+import { UsePipes, ValidationPipe } from '@nestjs/common'
+import { Interval } from '@nestjs/schedule'
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 
+import ms from 'ms'
 import { Socket, Server } from 'socket.io'
 
-import { StoreService } from '@app/common/store/store.service'
+import { ErrorCodes } from '@app/common/constants/error-codes'
+import { RoomsSyncService } from '@app/common/modules/rooms-sync/rooms-sync.service'
+import { StoreService } from '@app/common/modules/store/store.service'
+import { _dayjs } from '@app/common/utils/datetime'
 
-import { AuthService } from '../auth/auth.service'
-import { JoinEventDto } from './dtos/join.event.dto'
-import { RoomsService } from './rooms.service'
+import { AuthService } from '../../../../../libs/common/src/modules/auth/auth.service'
+import { WithAuthEventDto } from './dtos/with-auth-event.dto'
+
+const roomLifetime_days = 5
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class RoomsGateway implements OnGatewayDisconnect {
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    forbidUnknownValues: false,
+    transform: true,
+  })
+)
+export class RoomsGateway {
   @WebSocketServer() server: Server
+
   constructor(
-    private readonly roomsService: RoomsService,
     private readonly storeService: StoreService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly roomsSyncService: RoomsSyncService
   ) {}
-  async handleDisconnect(client: Socket): Promise<void> {
-    const roomFromStore = this.storeService.getRoomByClientId(client.id)
-    if (!roomFromStore) {
-      client.emit('sync', { status: false, message: 'Room not found' })
-      return
-    }
-
-    const disconnectedUser = roomFromStore.users?.find(user =>
-      user.channelId.includes(client.id)
-    )
-
-    if (disconnectedUser) {
-      if (disconnectedUser.channelId.length === 1) {
-        this.storeService.removeUserFromRoom(
-          roomFromStore.terminationId,
-          disconnectedUser.sessionId
-        )
-      } else {
-        this.storeService.removeClientIdFromUser(
-          roomFromStore.terminationId,
-          disconnectedUser.sessionId,
-          client.id
-        )
-      }
-    }
-
-    await this.roomsService.syncRooms(roomFromStore.terminationId, this.server)
-  }
 
   @SubscribeMessage('join')
-  async handleEvent(client: Socket, message: JoinEventDto): Promise<void> {
-    const decodedToken = this.authService.validateToken(message.token)
-    if (!decodedToken) {
-      client.emit('sync', { status: false, message: 'Invalid token' })
+  async join(client: Socket, message: WithAuthEventDto): Promise<void> {
+    const tokenPayload = this.authService.validateAndParseToken({
+      token: message.token,
+    })
+
+    if (!tokenPayload) {
+      client.emit('known-error', ErrorCodes.AUTH_TOKEN_NOT_VALID)
+
       return
     }
 
-    const roomFromStore = this.storeService.getRoomById(decodedToken.terminationId)
-    if (!roomFromStore) {
-      client.emit('sync', { status: false, message: 'Room not found' })
+    const room = this.storeService.getRoomById(tokenPayload.terminationId)
+
+    if (!room) {
+      client.emit('known-error', ErrorCodes.ROOM_NOT_FOUND)
+
       return
     }
 
-    const userFromStore = this.storeService.getUserBySessionId(
-      decodedToken.terminationId,
-      decodedToken.sessionId
+    const userFromStore = this.storeService.getUserFromRoomBySessionId(
+      tokenPayload.terminationId,
+      tokenPayload.sessionId
     )
 
-    const userRoom = {
-      channelId: [client.id],
-      sessionId: decodedToken.sessionId,
-      nickname: decodedToken.nickname,
-      position: 0,
+    if (!userFromStore) {
+      client.emit('known-error', ErrorCodes.USER_NOT_FOUND)
+
+      return
     }
+
+    const now = _dayjs()
+
+    this.storeService.setUserInRoom(tokenPayload.terminationId, {
+      ...userFromStore,
+      meta: {
+        ...userFromStore.meta,
+
+        lastSeenAt: now,
+      },
+    })
+
+    await this.roomsSyncService.syncRoom(tokenPayload.terminationId, this.server)
+  }
+
+  @SubscribeMessage('iamhere')
+  async handleEvent(client: Socket, message: WithAuthEventDto): Promise<void> {
+    const tokenPayload = this.authService.validateAndParseToken({
+      token: message.token,
+    })
+
+    if (!tokenPayload) {
+      client.emit('known-error', ErrorCodes.AUTH_TOKEN_NOT_VALID)
+
+      return
+    }
+
+    const room = this.storeService.getRoomById(tokenPayload.terminationId)
+
+    if (!room) {
+      client.emit('known-error', ErrorCodes.ROOM_NOT_FOUND)
+
+      return
+    }
+
+    const userFromStore = this.storeService.getUserFromRoomBySessionId(
+      tokenPayload.terminationId,
+      tokenPayload.sessionId
+    )
 
     if (!userFromStore) {
-      this.storeService.createUserInRoom(decodedToken.terminationId, userRoom)
-    } else {
-      this.storeService.updateUserInRoom(decodedToken.terminationId, {
-        ...userRoom,
-        channelId: [...userFromStore.channelId, client.id],
-      })
+      client.emit('known-error', ErrorCodes.USER_NOT_FOUND)
+
+      return
     }
 
-    await this.roomsService.syncRooms(decodedToken.terminationId, this.server)
+    const now = _dayjs()
+
+    this.storeService.setUserInRoom(tokenPayload.terminationId, {
+      ...userFromStore,
+      meta: {
+        ...userFromStore.meta,
+
+        lastSeenAt: now,
+      },
+    })
+  }
+
+  @Interval(ms('7s'))
+  async baseSync() {
+    const currentStoreRoomTerminationIds = this.storeService.getAllKeys()
+
+    for (const terminationId of currentStoreRoomTerminationIds) {
+      await this.roomsSyncService.syncRoom(terminationId, this.server)
+    }
+  }
+
+  @Interval(ms('1h'))
+  async recycleRooms() {
+    const kickUser = (socketChannelId: string) => {
+      this.server.to(socketChannelId).emit('kicked')
+    }
+
+    const now = _dayjs()
+
+    const currentStore = this.storeService.getAll()
+
+    for (const room of currentStore) {
+      if (room.meta.createdAt.isBefore(now.subtract(roomLifetime_days, 'days'))) {
+        room.roomUsers.forEach(user => {
+          kickUser(user.socketChannelId)
+        })
+
+        this.storeService.delete(room.roomInfo.terminationId)
+
+        continue
+      }
+    }
   }
 }

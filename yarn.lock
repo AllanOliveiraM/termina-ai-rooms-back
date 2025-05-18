@@ -1602,6 +1602,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/schedule@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@nestjs/schedule@npm:6.0.0"
+  dependencies:
+    cron: "npm:4.3.0"
+  peerDependencies:
+    "@nestjs/common": ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^10.0.0 || ^11.0.0
+  checksum: 10/84f4c11f9fe3aa6d5e7b3c4d0e27f610e47394e87b2974bf0b7a169832b52343daf9ca1c5717caf642d9b134d8a0ae2ce5ab3dca5562d41781b92ddc96a91043
+  languageName: node
+  linkType: hard
+
 "@nestjs/schematics@npm:^11.0.1, @nestjs/schematics@npm:^11.0.5":
   version: 11.0.5
   resolution: "@nestjs/schematics@npm:11.0.5"
@@ -1982,6 +1994,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/is-number@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "@types/is-number@npm:7.0.5"
+  checksum: 10/6286c8eaec7655feb534f1d2e23f06d6709302848bc57e3384f298bb377c4a159d212fe6068c1df2f3ed8ae94849aa92087863af63bd0c27b5277e32aab52cc0
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.6
   resolution: "@types/istanbul-lib-coverage@npm:2.0.6"
@@ -2038,6 +2057,13 @@ __metadata:
     "@types/ms": "npm:*"
     "@types/node": "npm:*"
   checksum: 10/ef4dc05ae5ae78e3d2e20c364437e4afb788017cc80dd8a23a3eb17a3fcecb41e6abba254aba974d45a71307dd375aba4fda73cec358923aaaf8dff4667bea09
+  languageName: node
+  linkType: hard
+
+"@types/luxon@npm:~3.6.0":
+  version: 3.6.2
+  resolution: "@types/luxon@npm:3.6.2"
+  checksum: 10/73ca30059e0b1e352ce3a208837bc042e0bae9cf6e5b42f63de9ddfe15348a9e9bf9fcde3d4034038be24cb24adc579ae984cadff3bf70432e54fed1ad249d12
   languageName: node
   linkType: hard
 
@@ -3805,6 +3831,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cron@npm:4.3.0":
+  version: 4.3.0
+  resolution: "cron@npm:4.3.0"
+  dependencies:
+    "@types/luxon": "npm:~3.6.0"
+    luxon: "npm:~3.6.0"
+  checksum: 10/202d9eef7da7c3cae548ef0e0fd20a0ee2f41ca36cca1486ba4ecd16783d02ebc6c116c84572aef0ce6c85c9f290eba9ff00e1a8eda2053123cf2c9d68a4702a
+  languageName: node
+  linkType: hard
+
 "cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
@@ -3880,6 +3916,13 @@ __metadata:
   dependencies:
     "@babel/runtime": "npm:^7.21.0"
   checksum: 10/70b3e8ea7aaaaeaa2cd80bd889622a4bcb5d8028b4de9162cbcda359db06e16ff6e9309e54eead5341e71031818497f19aaf9839c87d1aba1e27bb4796e758a9
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.13":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: 10/7374d63ab179b8d909a95e74790def25c8986e329ae989840bacb8b1888be116d20e1c4eee75a69ea0dfbae13172efc50ef85619d304ee7ca3c01d5878b704f5
   languageName: node
   linkType: hard
 
@@ -7247,6 +7290,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"luxon@npm:~3.6.0":
+  version: 3.6.1
+  resolution: "luxon@npm:3.6.1"
+  checksum: 10/35aad425607708c87af110a52c949190bc35b987770079ec8007ef2365cd29639413db3360d2883777aa01cb3ca5bdb37f42ee3e8e5a0dd277fe22e90cc8a786
+  languageName: node
+  linkType: hard
+
 "magic-string@npm:0.30.17":
   version: 0.30.17
   resolution: "magic-string@npm:0.30.17"
@@ -9424,10 +9474,12 @@ __metadata:
     "@nestjs/microservices": "npm:^11.0.20"
     "@nestjs/platform-express": "npm:^11.0.20"
     "@nestjs/platform-socket.io": "npm:^11.1.1"
+    "@nestjs/schedule": "npm:^6.0.0"
     "@nestjs/schematics": "npm:^11.0.5"
     "@nestjs/testing": "npm:^10.4.7"
     "@nestjs/websockets": "npm:^11.1.1"
     "@types/express": "npm:^5.0.1"
+    "@types/is-number": "npm:^7.0.5"
     "@types/jest": "npm:^29.5.14"
     "@types/jsonwebtoken": "npm:^9.0.9"
     "@types/ms": "npm:^2.1.0"
@@ -9441,6 +9493,7 @@ __metadata:
     commitlint: "npm:^17.7.1"
     concurrently: "npm:^8.2.1"
     cz-conventional-changelog: "npm:^3.3.0"
+    dayjs: "npm:^1.11.13"
     dotenv: "npm:^16.5.0"
     eslint: "npm:^8.48.0"
     eslint-config-prettier: "npm:^9.0.0"
@@ -9449,6 +9502,7 @@ __metadata:
     eslint-plugin-jest: "npm:^28.9.0"
     eslint-plugin-prettier: "npm:^5.0.0"
     husky: "npm:^8.0.3"
+    is-number: "npm:^7.0.0"
     jest: "npm:^29.7.0"
     joi: "npm:^17.13.3"
     jsonwebtoken: "npm:^9.0.2"

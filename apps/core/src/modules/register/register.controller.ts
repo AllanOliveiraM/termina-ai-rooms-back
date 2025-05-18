@@ -16,7 +16,9 @@ export class RegisterController {
   constructor(private readonly registerService: RegisterService) {}
 
   @Post('/start-termination')
-  async startTermination(@Body() body: StartTerminationDto) {
-    return this.registerService.registerStartTermination(body)
+  async startTermination(@Body() startTerminationDto: StartTerminationDto) {
+    return this.registerService.startTermination({
+      startTerminationDto,
+    })
   }
 }

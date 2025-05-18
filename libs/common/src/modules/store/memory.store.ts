@@ -21,4 +21,8 @@ export class MemoryStore<T> {
   getAll(): T[] {
     return Array.from(this.items.values())
   }
+
+  getAllKeys(): string[] {
+    return this.items.keys().toArray()
+  }
 }

@@ -1,16 +1,15 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 
-import { StoreModule } from '@app/common/store/store.module'
+import { RoomsSyncModule } from '@app/common/modules/rooms-sync/rooms-sync.module'
+import { StoreModule } from '@app/common/modules/store/store.module'
 
-import { AuthModule } from '../auth/auth.module'
-import { AuthService } from '../auth/auth.service'
+import { AuthModule } from '../../../../../libs/common/src/modules/auth/auth.module'
 import { RoomsGateway } from './rooms.gateway'
-import { RoomsService } from './rooms.service'
 
 @Module({
-  imports: [StoreModule, RoomsModule, AuthModule, HttpModule],
+  imports: [StoreModule, AuthModule, HttpModule, RoomsSyncModule],
   controllers: [],
-  providers: [RoomsService, AuthService, RoomsGateway],
+  providers: [RoomsGateway],
 })
 export class RoomsModule {}

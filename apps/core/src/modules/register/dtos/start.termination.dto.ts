@@ -7,11 +7,11 @@ export class StartTerminationDto {
 
   @IsString()
   @IsNotEmpty()
-  nameTerminated: string
+  phoneTerminator: string
 
   @IsString()
   @IsNotEmpty()
-  phoneTerminator: string
+  nameTerminated: string
 
   @IsString()
   @IsNotEmpty()

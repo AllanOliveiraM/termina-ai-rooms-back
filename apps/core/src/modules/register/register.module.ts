@@ -1,11 +1,12 @@
-import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
+
+import { ChatbotServerModule } from '@app/common/modules/chatbot-server/chatbot-server.module'
 
 import { RegisterController } from './register.controller'
 import { RegisterService } from './register.service'
 
 @Module({
-  imports: [HttpModule],
+  imports: [ChatbotServerModule],
   controllers: [RegisterController],
   providers: [RegisterService],
 })
