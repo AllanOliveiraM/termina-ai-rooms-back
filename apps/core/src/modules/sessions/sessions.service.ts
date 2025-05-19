@@ -9,6 +9,7 @@ import { ErrorCodes } from '@app/common/constants/error-codes'
 import { ChatbotServerService } from '@app/common/modules/chatbot-server/chatbot-server.service'
 import { StoreService } from '@app/common/modules/store/store.service'
 import { AuthJwtTokenPayload } from '@app/common/types/auth'
+import { Room } from '@app/common/types/rooms'
 import { UserChairPositions } from '@app/common/types/users'
 import { _dayjs } from '@app/common/utils/datetime'
 
@@ -38,9 +39,24 @@ export class SessionsService {
 
   async createSession(data: CreateSessionDto) {
     try {
-      const roomFromChatbotServer = await this.chatbotServerService.findRoomByToken(
-        data.token
-      )
+      // const roomFromChatbotServer = await this.chatbotServerService.findRoomByToken(
+      //   data.token
+      // )
+      const roomFromChatbotServer: Room = {
+        currentUserInfo: {
+          type: 'auditorium',
+        },
+        meta: {
+          createdAt: _dayjs(),
+        },
+        roomInfo: {
+          chosenMessage: 'oiii',
+          scenario: 'example_slug',
+          soundtrack: 'example_slug',
+          terminationId: 'session',
+        },
+        roomUsers: [],
+      }
 
       let roomFromStore = this.storeService.getRoomById(
         roomFromChatbotServer.roomInfo.terminationId
@@ -91,7 +107,6 @@ export class SessionsService {
 
       return { token }
     } catch (err) {
-      console.log(err)
       throw new BadRequestException(ErrorCodes.ROOM_TOKEN_NOT_VALID)
     }
   }

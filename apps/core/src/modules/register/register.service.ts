@@ -18,7 +18,7 @@ export class RegisterService {
     startTerminationDto: StartTerminationDto
   }) {
     try {
-      await this.chatbotServerService.startTermination(startTerminationDto)
+      // await this.chatbotServerService.startTermination(startTerminationDto)
     } catch (err) {
       // ? Track custom errors in future
 
